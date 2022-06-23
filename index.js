@@ -37,7 +37,28 @@ app.get('/talker/:id', async (req, res) => {
 
 const generateToken = () => crypto.randomBytes(8).toString('hex');
 
-app.post('/login', async (req, res) => {
+const validateEmail = (req, res, next) => {
+  // regex serve para identificar o formato correto do email
+  const emailRegex = /^[a-z0-9.]+@[a-z0-9]+\.[a-z]+(\.[a-z]+)?$/i;
+  const { email, password } = req.body;
+  if (!email) return res.status(400).json({ message: 'O campo "email" é obrigatório' });
+
+  // emailRegex.test() irá verificar se o email é true ou false
+  if (!emailRegex.test(email)) {
+ return res.status(400).json({ message: 'O "email" deve ter o formato "email@email.com"',
+}); 
+}
+
+  if (!password) return res.status(400).json({ message: 'O campo "password" é obrigatório' });
+     
+   if (password.length < 6) { 
+     return res.status(400)
+    .json({ message: 'O "password" deve ter pelo menos 6 caracteres' }); }
+
+  next();
+};
+
+app.post('/login', validateEmail, async (req, res) => {
 const { email, password } = req.body;
 const token = generateToken();
 res.json({ email, password, token });
