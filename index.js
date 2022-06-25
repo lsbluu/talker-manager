@@ -1,7 +1,17 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs').promises;
-const crypto = require('crypto');
+
+const validateEmail = require('./middlewares/validateEmail');
+const validatePassword = require('./middlewares/validatePassword');
+const validateName = require('./middlewares/validateName');
+const validateAge = require('./middlewares/validateAge');
+const validateTalk = require('./middlewares/validateTalk');
+const validateRate = require('./middlewares/validateRate');
+const validateWatchedAt = require('./middlewares/validateWatchedAt');
+const validateDate = require('./middlewares/validateDate');
+const authorization = require('./middlewares/authorization');
+const generateToken = require('./middlewares/generateToken');
 
 const app = express();
 app.use(bodyParser.json());
@@ -35,31 +45,34 @@ app.get('/talker/:id', async (req, res) => {
   res.json(talkerId);
 });
 
-const generateToken = () => crypto.randomBytes(8).toString('hex');
-
-const validateEmail = (req, res, next) => {
-  // regex serve para identificar o formato correto do email
-  const emailRegex = /^[a-z0-9.]+@[a-z0-9]+\.[a-z]+(\.[a-z]+)?$/i;
-  const { email, password } = req.body;
-  if (!email) return res.status(400).json({ message: 'O campo "email" é obrigatório' });
-
-  // emailRegex.test() irá verificar se o email é true ou false
-  if (!emailRegex.test(email)) {
- return res.status(400).json({ message: 'O "email" deve ter o formato "email@email.com"',
-}); 
-}
-
-  if (!password) return res.status(400).json({ message: 'O campo "password" é obrigatório' });
-     
-   if (password.length < 6) { 
-     return res.status(400)
-    .json({ message: 'O "password" deve ter pelo menos 6 caracteres' });
-  }
-  next();
-};
-
-app.post('/login', validateEmail, async (req, res) => {
+app.post('/login', validateEmail, validatePassword, async (req, res) => {
 const { email, password } = req.body;
 const token = generateToken();
 res.json({ email, password, token });
+});
+
+app.post('/talker', 
+authorization,
+validateName, 
+validateAge, 
+validateTalk, 
+validateRate, 
+validateWatchedAt, 
+validateDate, async (req, res) => {
+  const { name, age, talk } = req.body;
+
+  const talkerOld = await fs.readFile('./talker.json', 'utf-8');
+  const talkerOldJson = JSON.parse(talkerOld);
+
+  const talkerNew = {
+    name,
+    age,
+    id: talkerOldJson.length + 1,
+    talk,
+  };
+
+  talkerOldJson.push(talkerNew);
+    await fs.writeFile('./talker.json', JSON.stringify(talkerOldJson));
+
+  res.status(201).json(talkerNew);
 });
