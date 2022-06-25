@@ -1,5 +1,3 @@
-const generateToken = require('./generateToken');
-
 const authorization = (req, res, next) => {
   const value = req.headers.authorization;
   if (!value) {
