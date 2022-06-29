@@ -77,3 +77,24 @@ validateDate, async (req, res) => {
 
   res.status(201).json(talkerNew);
 });
+
+app.put('/talker/:id', 
+authorization, 
+validateName, 
+validateAge, 
+validateTalk, 
+validateRate, 
+validateWatchedAt, 
+validateDate, async (req, res) => {
+  const { id } = req.params;
+  const { name, age, talk } = req.body;
+  const talkerFile = await fs.readFile('./talker.json', 'utf-8');
+  const talkerParsed = JSON.parse(talkerFile);
+  const talkerIndex = talkerParsed.findIndex((t) => t.id === Number(id));
+
+  talkerParsed[talkerIndex] = { ...talkerParsed[talkerIndex], name, age, talk };
+
+  await fs.writeFile('./talker.json', JSON.stringify(talkerParsed));
+
+  res.status(200).json(talkerParsed[talkerIndex]);
+});
