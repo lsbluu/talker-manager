@@ -100,3 +100,17 @@ validateDate, async (req, res) => {
 
   res.status(200).json(talkerParsed[talkerIndex]);
 });
+
+app.delete('/talker/:id', authorization, async (req, res) => {
+  const { id } = req.params;
+  const talkerFile = await fs.readFile(talkerPath, 'utf-8');
+  const talkerParsed = JSON.parse(talkerFile);
+
+  const talkerIndex = talkerParsed.findIndex((t) => t.id === Number(id));
+
+ talkerParsed.splice(talkerIndex, 1);
+
+  await fs.writeFile(talkerPath, JSON.stringify(talkerParsed));
+
+  res.status(204).end();
+});

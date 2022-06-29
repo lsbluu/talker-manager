@@ -10,7 +10,6 @@ if (value.length < 16) {
    message: 'Token inválido',
    }); 
  }
-
 next();
 };
 
