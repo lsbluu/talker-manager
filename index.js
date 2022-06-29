@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs').promises;
+const talkerPath = './talker.json';
 
 const validateEmail = require('./middlewares/validateEmail');
 const validatePassword = require('./middlewares/validatePassword');
@@ -29,14 +30,14 @@ app.listen(PORT, () => {
 });
 
 app.get('/talker', async (req, res) => {
-  const talker = await fs.readFile('./talker.json', 'utf-8');
+  const talker = await fs.readFile(talkerPath, 'utf-8');
   const jsonparse = JSON.parse(talker);
   res.json(jsonparse);
 });
 
 app.get('/talker/:id', async (req, res) => {
   const { id } = req.params;  
-  const talkers = await fs.readFile('./talker.json', 'utf-8');
+  const talkers = await fs.readFile(talkerPath, 'utf-8');
   const talkersJson = JSON.parse(talkers);
   const talkerId = talkersJson.find((t) => t.id === Number(id));
 
@@ -62,7 +63,7 @@ validateWatchedAt,
 validateDate, async (req, res) => {
   const { name, age, talk } = req.body;
 
-  const talkerOld = await fs.readFile('./talker.json', 'utf-8');
+  const talkerOld = await fs.readFile(talkerPath, 'utf-8');
   const talkerOldJson = JSON.parse(talkerOld);
 
   const talkerNew = {
@@ -88,7 +89,7 @@ validateWatchedAt,
 validateDate, async (req, res) => {
   const { id } = req.params;
   const { name, age, talk } = req.body;
-  const talkerFile = await fs.readFile('./talker.json', 'utf-8');
+  const talkerFile = await fs.readFile(talkerPath, 'utf-8');
   const talkerParsed = JSON.parse(talkerFile);
   const talkerIndex = talkerParsed.findIndex((t) => t.id === Number(id));
 
